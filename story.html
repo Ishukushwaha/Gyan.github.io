@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Story Page</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Header -->
+        <header class="page-header">
+        <h1 class="page-title">Story</h1>
+    </header>
+
+    <!-- Content Area (e.g., Display Stories) -->
+    <main id="storyContainer">
+              <!-- Stories will be displayed here -->
+    </main>
+
+    <!-- Bottom Buttons -->
+    <button class="add-story-button" onclick="addStory()">
+        ➕ <!-- Icon for adding new story -->
+    </button>
+    <button class="back-button" onclick="goBack()">Back to Profile</button>
+    
+        <!-- Story Form Modal (Hidden initially) -->
+    <div id="storyFormModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeStoryForm()">×</span>
+            <h2>Add Story</h2>
+            <input type="file" id="storyImage" accept="image/*">
+            <input type="text" id="storyText" placeholder="Enter your status...">
+            <button onclick="addStory()">Add Story</button>
+        </div>
+    </div>
+
+<script>
+        function goBack() {
+            history.replaceState(null, null, 'profile.html');
+            window.location.href = 'profile.html'; // Navigate to the profile page
+        }
+
+</script>
+    <script src="scripts.js"></script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <script src="script.js">script.js</script>
+    <meta name="theme-color" content="#FF5400">
+</head>
+<body>
+    <div class="login-container">
+        <h2>Login</h2>
+        <input type="text" id="username" placeholder="Username" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <button onclick="login()">Login</button>
+        <p id="error-message"></p>
+    </div>
+
+    <script>
+        // Check if a user is already logged in
+        if (localStorage.getItem("currentUser")) {
+            window.location.href = "profile.html";
+        }
+
+        function login() {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+            const users = JSON.parse(localStorage.getItem("users")) || {};
+            const user = users[username];
+
+            if (user && user.password === password) {
+                localStorage.setItem("currentUser", username);
+                window.location.href = "profile.html";
+            } else if (user) {
+                document.getElementById("error-message").textContent = "ए भाई पासवर्ड सही कर।";
+            } else {
+                users[username] = { password, visitCount: 0, dateOfBirth: "", profilePicture: "" };
+                localStorage.setItem("users", JSON.stringify(users));
+                localStorage.setItem("currentUser", username);
+                window.location.href = "profile.html";
+            }
+        }
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker
+      .register('/service-worker.js')
+      .then((registration) => {
+        console.log('Service Worker registered with scope:', registration.scope);
+      })
+      .catch((error) => {
+        console.log('Service Worker registration failed:', error);
+      });
+  }
+    </script>
+</body>
+</html>

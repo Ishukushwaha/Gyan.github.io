@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile Page</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js">script.js</script>
+</head>
+<body>
+    <div class="profile-container">
+        <h1>Ram Ram, <span id="username"></span>!</h1>
+        <div class="profile-picture-section">
+            <div class="profile-picture-container">
+                <img id="profile-picture" src="default.png" alt="Profile Picture" onclick = "openPage('password')">
+                <div id="online-status-dot" class="status-dot offline"></div>
+            </div>
+            <div class="button-group">
+                <input type="file" id="upload-picture" accept="image/*" hidden>
+                <label for="upload-picture" class="thin-button">Choose Profile Picture</label>
+                <button class="button logout-button" onclick="logout()">Log Out</button>
+                <button class="clear-data-button" onclick="clearData()">Clear Data</button>
+            </div>
+            <p>Visits: <span id="visit-count"></span></p>
+        </div>
+        
+        <div class="dob-section">
+            <label for="dob">Date of Birth:</label>
+            <div class="input-group">
+                <input type="date" id="dob" disabled>
+                <button id="edit-dob-button" class="icon-button" onclick="toggleEdit('dob')">✏️</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <div class="bottom-nav">
+        <button onclick="openPage('profile')" class="nav-button active">👤<br>Profile</button>
+        <button onclick="openPage('Notes')" class="nav-button">📖<br>Notes</button>
+        <button onclick="openPage('Study-Graph')" class="nav-button">📈<br>Study Graph</button>
+        <button onclick="openPage('menu')" class="nav-button">☰<br>Menu</button>
+    </div>
+
+    <script>
+        const currentUser = localStorage.getItem('currentUser');
+        const users = JSON.parse(localStorage.getItem('users')) || {};
+        const user = users[currentUser];
+
+        // Redirect to login if no user is logged in
+        if (!user) {
+            window.location.href = 'index.html';
+        } else {
+            document.getElementById("username").textContent = currentUser;
+            user.visitCount++;
+            document.getElementById("visit-count").textContent = user.visitCount;
+            localStorage.setItem('users', JSON.stringify(users));
+
+            if (user.profilePicture) {
+                document.getElementById("profile-picture").src = user.profilePicture;
+            }
+
+            document.getElementById("dob").value = user.dateOfBirth || "";
+        }
+
+        // Set user's online status
+        setOnlineStatus(true);
+
+        document.getElementById("upload-picture").addEventListener("change", function (event) {
+            const reader = new FileReader();
+            reader.onload = function () {
+                const pictureData = reader.result;
+                user.profilePicture = pictureData;
+                document.getElementById("profile-picture").src = pictureData;
+                localStorage.setItem("users", JSON.stringify(users));
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        });
+
+        function toggleEdit(field) {
+            const fieldElement = document.getElementById(field);
+            const editButton = document.getElementById(`edit-${field}-button`);
+
+            if (fieldElement.disabled) {
+                fieldElement.disabled = false;
+                fieldElement.focus();
+                editButton.textContent = "✔️"; // Change to a checkmark when editing
+            } else {
+                fieldElement.disabled = true;
+                editButton.textContent = "✏️"; // Reset back to the pencil icon
+
+                if (field === "dob") {
+                    user.dateOfBirth = fieldElement.value;
+                }
+
+                localStorage.setItem("users", JSON.stringify(users));
+            }
+        }
+
+        function logout() {
+            // Set user status as offline before logout
+            setOnlineStatus(false);
+            localStorage.removeItem("currentUser");
+            window.location.href = 'index.html';
+        }
+
+        function clearData() {
+            if (confirm("Are you SURE to clear your DATA? If data will clear, this NEVER come back.")) {
+                delete users[currentUser];
+                localStorage.setItem("users", JSON.stringify(users));
+                localStorage.removeItem("currentUser");
+                alert("Your data has been cleared.");
+                window.location.href = 'index.html';
+            }
+        }
+
+        function setOnlineStatus(isOnline) {
+            const statusDot = document.getElementById("online-status-dot");
+
+            // If user is online, show orange dot, else show grey dot
+            if (isOnline) {
+                statusDot.classList.remove("offline");
+                statusDot.classList.add("online");
+            } else {
+                statusDot.classList.remove("online");
+                statusDot.classList.add("offline");
+            }
+        }
+        function openPage(page) {
+    // Update active state for icons in the navigation bar
+    document.querySelectorAll('.nav-button').forEach(button => button.classList.remove('active'));
+    document.querySelector(`[onclick="openPage('${page}')"]`).classList.add('active');
+
+    if (page === 'Notes') {
+        window.location.href = 'search.html';
+    }
+    if (page === 'Study-Graph') {
+        window.location.href = 'studygraph.html';
+            }
+    if (page === 'menu') {
+        window.location.href = 'menu.html';
+    }
+    if (page === 'password') {
+        window.location.href = 'password.html';
+    }
+}
+    </script>
+</div>
+</body>
+</html>

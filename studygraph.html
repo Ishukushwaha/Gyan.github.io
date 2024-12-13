@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Marks Graph</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        #marksForm {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        #marksForm input {
+            padding: 10px;
+            font-size: 16px;
+            width: 100%;
+            max-width: 300px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        #marksForm button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        #marksForm button:hover {
+            background-color: #45a049;
+        }
+        canvas {
+            border: 1px solid #FFF;
+            background-color: #fff;
+            display: block;
+            margin: 20px auto;
+            border-radius: 5px;
+        }
+
+        #resetButton {
+            padding: 10px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            display: block;
+            width: 100%;
+            max-width: 300px;
+            margin: 20px auto;
+        }
+
+        #resetButton:hover {
+            background-color: #e53935;
+        }
+
+        .bar-label {
+            text-align: center;
+            margin-top: 8px;
+            font-weight: bold;
+            color: #FFA500;
+        }
+        @media (max-width: 600px) {
+            #marksForm input, #marksForm button, #resetButton {
+                width: 100%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="marksForm">
+        <label for="marksInput">Enter Marks (1-100): </label>
+        <input type="number" id="marksInput" min="1" max="100" placeholder="Enter marks">
+        <button onclick="updateGraph()">Submit</button>
+    </div>
+
+    <div id="graphContainer">
+        <canvas id="marksGraph" width="345" height="300"></canvas>
+    </div>
+
+    <button id="resetButton" onclick="resetGraph()">Reset</button>
+
+    <script>
+        // Retrieve data from localStorage on page load
+        let subjectsMarks = JSON.parse(localStorage.getItem('subjectsMarks')) || {};  // {subject: marks}
+
+        const canvas = document.getElementById('marksGraph');
+        const ctx = canvas.getContext('2d');
+
+        // Function to draw the graph
+        function drawGraph() {
+            const maxMarks = 100;  // Maximum marks possible
+            const barWidth = 30;   // Width of each bar in the graph
+            const gap = 20;        // Gap between bars
+            const baseX = 30;      // Starting X position for the bars
+
+            // Clear the canvas before drawing
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Set the graph styles
+            ctx.fillStyle = "#4CAF50";  // Color for the bars
+
+            let i = 0;
+            // Draw each bar based on the subjectsMarks object
+            for (const [subject, mark] of Object.entries(subjectsMarks)) {
+                const barHeight = (mark / maxMarks) * canvas.height;  // Scale the bar height
+                const x = (barWidth + gap) * i + baseX; // X position for each bar
+                const y = canvas.height - barHeight; // Y position for each bar (bottom of canvas)
+
+                // Draw the bar
+                ctx.fillRect(x, y, barWidth, barHeight);
+
+                // Draw the mark value above each bar
+                ctx.fillStyle = "#000";  // Text color
+                ctx.font = "14px Arial";
+                ctx.fillText(mark, x + (barWidth / 4), y - 10);  // Position the text above the bar
+
+                // Draw the subject label under the bar
+                ctx.fillStyle = "#333";  // Label color
+                ctx.font = "12px Arial";
+                ctx.textAlign = 'center';
+                ctx.fillText(subject, x + barWidth / 2, canvas.height - 5);  // Position label under the bar
+
+                i++;
+            }
+        }
+
+        // Function to handle user input and update the graph
+        function updateGraph() {
+            const marksInput = document.getElementById('marksInput').value;
+            const markValue = parseInt(marksInput);
+
+            if (markValue >= 1 && markValue <= 100) {
+                // Get subject name for the current entry
+                const subjectName = prompt("Enter the subject name:");
+
+                if (subjectName) {
+                    if (subjectsMarks[subjectName] !== undefined) {
+                        // If the subject already exists, allow editing the marks
+                        const confirmEdit = confirm(`Marks for ${subjectName} already exist. Do you want to edit?`);
+                        if (confirmEdit) {
+                            subjectsMarks[subjectName] = markValue;  // Update the marks
+                        }
+                    } else {
+                        // Add new subject and marks
+                        subjectsMarks[subjectName] = markValue;
+                    }
+
+                    // Save data to localStorage
+                    localStorage.setItem('subjectsMarks', JSON.stringify(subjectsMarks));
+
+                    drawGraph();  // Re-draw the graph with the updated marks
+                }
+            } else {
+                alert("Please enter a valid mark between 1 and 100.");
+            }
+
+            // Clear the input field after submission
+            document.getElementById('marksInput').value = '';
+        }
+
+        // Function to reset the graph
+        function resetGraph() {
+            subjectsMarks = {};  // Clear the subjectsMarks object
+
+            // Remove data from localStorage
+            localStorage.removeItem('subjectsMarks');
+
+            drawGraph();  // Re-draw the graph (which will now be empty)
+        }
+
+        // Initialize the graph on page load
+        drawGraph();
+    </script>
+
+</body>
+</html>

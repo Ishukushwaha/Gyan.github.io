@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Users</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="page-header">
+        <h1 class="page-title">Search Users</h1>
+    </header>
+    
+    <div class="user-list-container">
+        <ul id="user-list"></ul>
+    </div>
+
+    <!-- Back to Profile button at the bottom of the page -->
+    <button class="back-button" onclick="goBack()">Back to Profile</button>
+
+    <script>
+        const users = JSON.parse(localStorage.getItem('users')) || {};
+        const userList = document.getElementById('user-list');
+
+        // Populate the user list with usernames and profile pictures
+        Object.keys(users).forEach(username => {
+            const listItem = document.createElement('li');
+            listItem.classList.add('user-list-item');
+
+            // Profile picture
+            const profilePic = document.createElement('img');
+            profilePic.classList.add('user-profile-pic');
+            profilePic.src = users[username].profilePicture || 'default-profile.png'; // Fallback if no picture
+
+            // Username
+            const userName = document.createElement('span');
+            userName.classList.add('user-name');
+            userName.textContent = username;
+            // Append elements to the list item
+            listItem.appendChild(profilePic);
+            listItem.appendChild(userName);
+            userList.appendChild(listItem);
+        });
+
+        function goBack() {
+            history.replaceState(null, null, 'profile.html');
+            window.location.href = 'profile.html'; // Navigate to the profile page
+        }
+
+        // Push a state to prevent the back button from taking the user back to the search page
+        history.pushState(null, null, 'search.html');
+    </script>
+    <script>
+    const users = JSON.parse(localStorage.getItem('users')) || {};
+    const userList = document.getElementById('user-list');
+    const currentUser = localStorage.getItem('currentUser'); // Get the currently logged-in user
+
+    // Check if a user is logged in
+    if (!currentUser) {
+        window.location.href = 'login.html'; // If not logged in, redirect to login page
+    }
+    // Populate the user list with usernames and profile pictures
+    Object.keys(users).forEach(username => {
+        if (username !== currentUser) { // Exclude current user from the list
+            const listItem = document.createElement('li');
+            listItem.classList.add('user-list-item');
+
+            // Profile picture
+            const profilePic = document.createElement('img');
+            profilePic.classList.add('user-profile-pic');
+            profilePic.src = users[username].profilePicture || 'default-profile.png'; // Fallback if no picture
+
+            // Username
+            const userName = document.createElement('span');
+            userName.classList.add('user-name');
+            userName.textContent = username;
+</script>
+</body>
+</html>

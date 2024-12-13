@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #0f0f0f;
+            color: #fff;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        .title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            color: #39ff14;
+            text-shadow: 0 0 15px #39ff14;
+        }
+
+        .button {
+            display: block;
+            margin: 1rem auto;
+            padding: 1rem 2rem;
+            font-size: 1.5rem;
+            color: #0f0f0f;
+            background: #39ff14;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px #39ff14;
+        }
+
+        #game {
+            display: none;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+            width: 300px;
+            margin: 2rem auto;
+        }
+
+        .cell {
+            width: 100px;
+            height: 100px;
+            background: #333;
+            color: #39ff14;
+            font-size: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            border: 2px solid #39ff14;
+            text-shadow: 0 0 10px #39ff14, 0 0 20px #39ff14;
+        }
+
+        .cell:hover {
+            background: #444;
+        }
+
+        .neon {
+            text-shadow: 0 0 5px #39ff14, 0 0 10px #39ff14, 0 0 20px #39ff14;
+        }
+
+        .difficulty {
+            margin: 1rem 0;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .difficulty button {
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            color: #0f0f0f;
+            background: #39ff14;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-shadow: 0 0 10px #39ff14, 0 0 20px #39ff14;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .difficulty button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px #39ff14;
+        }
+
+        .exit-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 0.5rem 1rem;
+            font-size: 1rem;
+            color: #0f0f0f;
+            background: #39ff14;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .exit-button:hover {
+            box-shadow: 0 0 10px #39ff14;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="menu">
+            <h1 class="title">Tic Tac Toe</h1>
+            <div id="difficulty" class="difficulty">
+                <button onclick="setDifficulty('easy')">Easy</button>
+                <button onclick="setDifficulty('normal')">Normal</button>
+                <button onclick="setDifficulty('hard')">Hard</button>
+            </div>
+            <button class="button" onclick="startSinglePlayer()">Single Player</button>
+            <button class="button" onclick="startMultiPlayer()">Multi Player</button>
+        </div>
+
+        <div id="game">
+            <h2 id="gameTitle" class="neon"></h2>
+            <div class="grid" id="grid"></div>
+            <a href="games.html" class="exit-button">Exit</a>
+        </div>
+    </div>
+
+    <script>
+        let currentPlayer = 'X';
+        const cells = [];
+        const grid = document.getElementById('grid');
+        let difficulty = 'easy';
+
+        function setDifficulty(level) {
+            difficulty = level;
+            alert(`Difficulty set to ${level.toUpperCase()}`);
+        }
+
+        function createGrid(isSinglePlayer) {
+            grid.innerHTML = '';
+            for (let i = 0; i < 9; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.onclick = () => handleClick(cell, i, isSinglePlayer);
+                grid.appendChild(cell);
+                cells[i] = '';
+            }
+        }
+
+        function handleClick(cell, index, isSinglePlayer) {
+            if (cell.textContent !== '') return;
+            cell.textContent = currentPlayer;
+            cells[index] = currentPlayer;
+
+            if (checkWin()) {
+                alert(`${currentPlayer} wins!`);
+                return;
+            } else if (cells.every(c => c !== '')) {
+                alert('It\'s a draw!');
+                return;
+            }
+
+            currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+
+            if (isSinglePlayer && currentPlayer === 'O') {
+                setTimeout(computerMove, 500);
+            }
+        }
+
+        function computerMove() {
+            const availableCells = cells.map((val, index) => val === '' ? index : null).filter(val => val !== null);
+            let move;
+
+            if (difficulty === 'easy') {
+                move = availableCells[Math.floor(Math.random() * availableCells.length)];
+            } else if (difficulty === 'normal') {
+                move = findWinningMove() || availableCells[Math.floor(Math.random() * availableCells.length)];
+            } else if (difficulty === 'hard') {
+                move = findWinningMove() || blockOpponent() || availableCells[Math.floor(Math.random() * availableCells.length)];
+            }
+
+            const cell = grid.children[move];
+            handleClick(cell, move, true);
+        }
+
+        function findWinningMove() {
+            for (let i = 0; i < cells.length; i++) {
+                if (cells[i] === '') {
+                    cells[i] = currentPlayer;
+                    if (checkWin()) {
+                        cells[i] = '';
+                        return i;
+                    }
+                    cells[i] = '';
+                }
+            }
+            return null;
+        }
+
+        function blockOpponent() {
+            const opponent = currentPlayer === 'X' ? 'O' : 'X';
+            for (let i = 0; i < cells.length; i++) {
+                if (cells[i] === '') {
+                    cells[i] = opponent;
+                    if (checkWin()) {
+                        cells[i] = '';
+                        return i;
+                    }
+                    cells[i] = '';
+                }
+            }
+            return null;
+        }
+
+        function checkWin() {
+            const winPatterns = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+                [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+                [0, 4, 8], [2, 4, 6]             // Diagonals
+            ];
+            return winPatterns.some(pattern =>
+                pattern.every(index => cells[index] === currentPlayer)
+            );
+        }
+
+        function startSinglePlayer() {
+            document.getElementById('menu').style.display = 'none';
+            document.getElementById('game').style.display = 'block';
+            document.getElementById('gameTitle').textContent = 'Single Player';
+            currentPlayer = 'X';
+            createGrid(true);
+        }
+        function startMultiPlayer() {
+            document.getElementById('menu').style.display = 'none';
+            document.getElementById('difficulty').style.display = 'none';
+            document.getElementById('game').style.display = 'block';
+            document.getElementById('gameTitle').textContent = 'Multi Player';
+            currentPlayer = 'X';
+            createGrid(false);
+        }
+    </script>
+</body>
+</html>
