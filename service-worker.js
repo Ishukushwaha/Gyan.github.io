@@ -5,6 +5,11 @@ const filesToCache = [
   '/style.css',
   '/script.js',
   '/icon.png',
+  '/freegames.html',
+  '/password.html',
+  '/maze.html',
+  '/snake_game.html',
+  '/t.html',
 ];
 
 // Cache the files when the service worker is installed
